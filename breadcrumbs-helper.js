@@ -7,10 +7,13 @@
 
 $(function () {
 
-    var SITEMAPS_ID = 'sitemap-hgjf32uytdb8cn';
-    var DEBUG = false;
+    var DEBUG = true;
+    var BREADCRUMBS_SELECTOR = '[data-breadcrumbs]';
+    var BREADCRUMBS_MAP = '__BREADCRUMBS_MAP';
+    var SITEMAP_URL = 'sitemap.xml';
+    var SITEMAP_ID = 'sitemap-hgjf32uytdb8cn';
 
-    function title(str) {
+    function gettitle(str) {
         str = str || '';
         str = str
             .replace(/\-/g, ' ')
@@ -42,19 +45,25 @@ $(function () {
             }
         });
         var str = '';
-        if (node.__link === true &&
+        if (node.__link &&
             !(parents[parents.length - 1] === '' &&
             parents.length === 1)) {
 
+            var link = typeof node.__link === 'string'?
+                node.__link : '/' + parents.join('/');
+
+            var title = typeof node.__title === 'string'?
+                node.__title : gettitle(parents[parents.length - 1]);
+
             str += '<a href="%LINK%">%TITLE%</a>'
-                .replace(/%LINK%/g, '/' + parents.join('/'))
-                .replace(/%TITLE%/g, title(parents[parents.length - 1]));
+                .replace(/%LINK%/g, link)
+                .replace(/%TITLE%/g, title);
         }
         if (node.hasOwnProperty('') &&
             node[''].__link === true) {
             str += '<a href="%LINK%">%TITLE%</a>'
                 .replace(/%LINK%/g, '/' + parents.join('/'))
-                .replace(/%TITLE%/g, title(parents[parents.length - 1]));
+                .replace(/%TITLE%/g, gettitle(parents[parents.length - 1]));
         }
         if (list.length) {
             str += '<ul><li>%LIST%</li></ul>'
@@ -63,48 +72,61 @@ $(function () {
         return str;
     }
 
-    $.get('sitemap.xml', function (res) {
-        var $sitemap = $(res);
-        var $urls = $sitemap.find('loc');
-        var urls = [];
+    function generate(tree) {
+        var mkp = '<li>%MKP%</li>'
+            .replace(/%MKP%/g, traverse(tree));
 
-        $urls.each(function () {
-            var $elem = $(this);
-            var url = ($elem.text()+'').trim();
-
-            url = url.replace(/^https?:\/\/[^\/]+\//gi, '');
-            url = url.split(/\//g);
-            urls.push(url);
-        });
-
-        var tree = {};
-        var node;
-        for (var i = 0; i < urls.length; i++) {
-            node = tree;
-            for (var j = 0; j < urls[i].length; j++) {
-                node[urls[i][j]] = node[urls[i][j]] || {};
-                node = node[urls[i][j]];
-            }
-            node['__link'] = true;
-        }
-
-        if (DEBUG) {
-            var pre = document.createElement('pre');
-            pre.innerHTML = JSON.stringify(tree, null, 4);
-            $('body').append(pre);
-        }
-
-        var mkp = traverse(tree);
         var ul = document.createElement('ul');
         ul.innerHTML = mkp;
-        ul.id = SITEMAPS_ID;
+        ul.id = SITEMAP_ID;
         ul.style.display = 'none';
+
         $('body').append(ul);
 
-        $('#breadcrumbs').breadcrumbsGenerator({
-            sitemaps: '#' + SITEMAPS_ID,
+        $(BREADCRUMBS_SELECTOR).breadcrumbsGenerator({
+            sitemaps: '#' + SITEMAP_ID,
             index_type: ''
         });
-    });
+    }
+
+    if (window[BREADCRUMBS_MAP]) {
+        generate(window[BREADCRUMBS_MAP]);
+
+    } else {
+        $.get(SITEMAP_URL, function (res) {
+            var $sitemap = $(res);
+            var $urls = $sitemap.find('loc');
+            var urls = [];
+
+            $urls.each(function () {
+                var $elem = $(this);
+                var url = ($elem.text()+'').trim();
+
+                url = url.replace(/^https?:\/\/[^\/]+\//gi, '');
+                url = url.split(/\//g);
+                urls.push(url);
+            });
+
+            var tree = {};
+            var node;
+            for (var i = 0; i < urls.length; i++) {
+                node = tree;
+                for (var j = 0; j < urls[i].length; j++) {
+                    node[urls[i][j]] = node[urls[i][j]] || {};
+                    node = node[urls[i][j]];
+                }
+                node['__link'] = true;
+            }
+
+            if (DEBUG) {
+                var pre = document.createElement('pre');
+                pre.innerHTML = JSON.stringify(tree, null, 4);
+                $('body').append(pre);
+            }
+
+            generate(tree);
+        });
+    }
 
 });
+
