@@ -13,21 +13,6 @@
       <loc>https://uml-web-2017-staging.webflow.io/custom/workflow</loc>
    </url>
    <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/loops/one</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/loops/two</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/loops/three</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/soundpacks</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/free-stuff</loc>
-   </url>
-   <url>
       <loc>https://uml-web-2017-staging.webflow.io/shop/engines/ubeat</loc>
    </url>
    <url>
@@ -40,25 +25,25 @@
       <loc>https://uml-web-2017-staging.webflow.io/shop/engines/pads</loc>
    </url>
    <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/overview</loc>
-   </url>
-   <url>
       <loc>https://uml-web-2017-staging.webflow.io/shop/engines</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/expansions</loc>
-   </url>
-   <url>
-      <loc>https://uml-web-2017-staging.webflow.io/shop/bundles</loc>
    </url>
    <url>
       <loc>https://uml-web-2017-staging.webflow.io/style-guide</loc>
    </url>
    <url>
+      <loc>https://uml-web-2017-staging.webflow.io/loops</loc>
+   </url>
+   <url>
+      <loc>https://uml-web-2017-staging.webflow.io/soundpacks</loc>
+   </url>
+   <url>
       <loc>https://uml-web-2017-staging.webflow.io/support</loc>
    </url>
    <url>
-      <loc>https://uml-web-2017-staging.webflow.io/blog-articles</loc>
+      <loc>https://uml-web-2017-staging.webflow.io/free-products</loc>
+   </url>
+   <url>
+      <loc>https://uml-web-2017-staging.webflow.io/blog</loc>
    </url>
    <url>
       <loc>https://uml-web-2017-staging.webflow.io/</loc>
@@ -67,13 +52,22 @@
       <loc>https://uml-web-2017-staging.webflow.io/404</loc>
    </url>
    <url>
+      <loc>https://uml-web-2017-staging.webflow.io/shop</loc>
+   </url>
+   <url>
       <loc>https://uml-web-2017-staging.webflow.io/401</loc>
    </url>
    <url>
       <loc>https://uml-web-2017-staging.webflow.io/artists</loc>
    </url>
    <url>
+      <loc>https://uml-web-2017-staging.webflow.io/expansions</loc>
+   </url>
+   <url>
       <loc>https://uml-web-2017-staging.webflow.io/company</loc>
+   </url>
+   <url>
+      <loc>https://uml-web-2017-staging.webflow.io/bundles</loc>
    </url>
    <url>
       <loc>https://uml-web-2017-staging.webflow.io/bundles/engines-bundle</loc>

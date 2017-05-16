@@ -7,10 +7,10 @@
 
 $(function () {
 
-    var DEBUG = true;
+    var DEBUG = false;
     var BREADCRUMBS_SELECTOR = '[data-breadcrumbs]';
-    var BREADCRUMBS_MAP = '__BREADCRUMBS_MAP';
-    var SITEMAP_URL = 'sitemap.xml';
+    var BREADCRUMBS_OVERRIDE = '__BREADCRUMBS_OVERRIDE';
+    var SITEMAP_URL = 'sitemap.xml?v=5';
     var SITEMAP_ID = 'sitemap-hgjf32uytdb8cn';
 
     function gettitle(str) {
@@ -37,8 +37,15 @@ $(function () {
         }
         var list = [];
         $.each(node, function (key, value) {
-            var result = traverse(
-                value, parents.concat(key));
+            var nextParents = typeof node.__link === 'string'?
+                (node.__link.match(/^\//g)? 
+                    [node.__link.replace(/^\//g, ''), key] :
+                        parents
+                            .slice(0, -1)
+                            .concat(node.__link)
+                            .concat(key)) : parents.concat(key);
+
+            var result = traverse(value, nextParents);
 
             if (result && result.length) {
                 list.push(result);
@@ -72,6 +79,38 @@ $(function () {
         return str;
     }
 
+    function override(node, target, root, parents) {
+        root = root || node;
+        parents = parents || [];
+        if (typeof target !== 'object') {
+            return;
+        }
+        $.each(target, function (key, value) {
+            if (key === '__move') return;
+            node[key] = node[key] || {};
+            override(node[key], value, root, parents.concat(key));
+        });
+        if (target.__link) {
+            node.__link = target.__link;
+        }
+        if (target.__move) {
+            // copy node reference
+            var path = target.__move.split(/\//g);
+            var item = root;
+            for (var i = 0; i < (path.length - 1); i++) {
+                item[path[i]] = item[path[i]] || {};
+                item = item[path[i]];
+            }
+            item[path[path.length - 1]] = node;
+            // delete old node reference
+            var item = root;
+            for (var i = 0; i < (parents.length  - 1); i++) {
+                item = item[parents[i]];
+            }
+            delete item[parents[parents.length - 1]];
+        }
+    }
+
     function generate(tree) {
         var mkp = '<li>%MKP%</li>'
             .replace(/%MKP%/g, traverse(tree));
@@ -79,7 +118,7 @@ $(function () {
         var ul = document.createElement('ul');
         ul.innerHTML = mkp;
         ul.id = SITEMAP_ID;
-        ul.style.display = 'none';
+        if (!DEBUG) ul.style.display = 'none';
 
         $('body').append(ul);
 
@@ -89,44 +128,41 @@ $(function () {
         });
     }
 
-    if (window[BREADCRUMBS_MAP]) {
-        generate(window[BREADCRUMBS_MAP]);
+    $.get(SITEMAP_URL, function (res) {
+        var $sitemap = $(res);
+        var $urls = $sitemap.find('loc');
+        var urls = [];
 
-    } else {
-        $.get(SITEMAP_URL, function (res) {
-            var $sitemap = $(res);
-            var $urls = $sitemap.find('loc');
-            var urls = [];
+        $urls.each(function () {
+            var $elem = $(this);
+            var url = ($elem.text()+'').trim();
 
-            $urls.each(function () {
-                var $elem = $(this);
-                var url = ($elem.text()+'').trim();
-
-                url = url.replace(/^https?:\/\/[^\/]+\//gi, '');
-                url = url.split(/\//g);
-                urls.push(url);
-            });
-
-            var tree = {};
-            var node;
-            for (var i = 0; i < urls.length; i++) {
-                node = tree;
-                for (var j = 0; j < urls[i].length; j++) {
-                    node[urls[i][j]] = node[urls[i][j]] || {};
-                    node = node[urls[i][j]];
-                }
-                node['__link'] = true;
-            }
-
-            if (DEBUG) {
-                var pre = document.createElement('pre');
-                pre.innerHTML = JSON.stringify(tree, null, 4);
-                $('body').append(pre);
-            }
-
-            generate(tree);
+            url = url.replace(/^https?:\/\/[^\/]+\//gi, '');
+            url = url.split(/\//g);
+            urls.push(url);
         });
-    }
+
+        var tree = {};
+        var node;
+        for (var i = 0; i < urls.length; i++) {
+            node = tree;
+            for (var j = 0; j < urls[i].length; j++) {
+                node[urls[i][j]] = node[urls[i][j]] || {};
+                node = node[urls[i][j]];
+            }
+            node['__link'] = true;
+        }
+
+        override(tree, window[BREADCRUMBS_OVERRIDE] || {});
+
+        if (DEBUG) {
+            var pre = document.createElement('pre');
+            pre.innerHTML = JSON.stringify(tree, null, 4);
+            $('body').append(pre);
+        }
+
+        generate(tree);
+    });
 
 });
 
