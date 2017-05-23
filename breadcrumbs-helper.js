@@ -7,10 +7,10 @@
 
 $(function () {
 
-    var DEBUG = false;
+    var DEBUG = true;
     var BREADCRUMBS_SELECTOR = '[data-breadcrumbs]';
     var BREADCRUMBS_OVERRIDE = '__BREADCRUMBS_OVERRIDE';
-    var SITEMAP_URL = 'sitemap.xml?v=5';
+    var SITEMAP_URL = '/sitemap.xml';
     var SITEMAP_ID = 'sitemap-hgjf32uytdb8cn';
 
     function gettitle(str) {
@@ -137,8 +137,11 @@ $(function () {
             var $elem = $(this);
             var url = ($elem.text()+'').trim();
 
-            url = url.replace(/^https?:\/\/[^\/]+\//gi, '');
-            url = url.split(/\//g);
+            url = url
+                .replace(/^https?:\/\/[^\/]+\//gi, '')
+                .replace(/\/$/, '')
+                .split(/\//g);
+
             urls.push(url);
         });
 
