@@ -109,6 +109,9 @@ $(function () {
             }
             delete item[parents[parents.length - 1]];
         }
+        if (target.__title) {
+            node.__title = target.__title;
+        }
     }
 
     function generate(tree) {
